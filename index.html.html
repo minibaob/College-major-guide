@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四大行业相关高校及专业树状图</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh; color: #e0e0e0; padding: 20px;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+.header {
+    text-align: center; padding: 30px 20px;
+    background: rgba(255,255,255,0.05); border-radius: 16px;
+    margin-bottom: 24px; backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.header h1 {
+    font-size: 26px;
+    background: linear-gradient(90deg, #f39c12, #e74c3c, #9b59b6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
+}
+.header .subtitle { color: #aaa; font-size: 14px; }
+.stats-bar {
+    display: flex; justify-content: center; gap: 24px;
+    margin-top: 16px; flex-wrap: wrap;
+}
+.stat-item {
+    text-align: center; padding: 10px 18px;
+    background: rgba(255,255,255,0.08); border-radius: 10px; min-width: 110px;
+}
+.stat-num { font-size: 22px; font-weight: bold; color: #f39c12; }
+.stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+.section-title {
+    font-size: 18px; font-weight: bold; color: #f1c40f;
+    margin: 24px 0 12px 0; padding-left: 12px; border-left: 4px solid #f39c12;
+}
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+    padding: 10px 18px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+    color: #ccc; cursor: pointer; font-size: 14px; transition: all 0.3s;
+}
+.tab-btn.active {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    color: white; border-color: transparent;
+}
+.tab-btn:hover { background: rgba(255,255,255,0.15); }
+.category {
+    background: rgba(255,255,255,0.04); border-radius: 12px;
+    margin-bottom: 12px; border-left: 4px solid #555;
+    overflow: hidden; transition: all 0.3s;
+}
+.category:hover { background: rgba(255,255,255,0.07); }
+.key-category { border-left-width: 5px; background: rgba(255,255,255,0.06); }
+.industry-category { border-left-width: 5px; background: rgba(230, 126, 34, 0.06); }
+.category-header {
+    padding: 16px 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 12px; user-select: none;
+}
+.toggle-icon { font-size: 10px; transition: transform 0.3s; width: 16px; }
+.category.collapsed .toggle-icon { transform: rotate(-90deg); }
+.cat-icon { font-size: 22px; }
+.cat-name { font-size: 17px; font-weight: bold; flex: 1; }
+.cat-stats { font-size: 12px; color: #888; }
+.key-badge {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;
+}
+.industry-badge {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;
+}
+.category-body { padding: 0 20px 16px 48px; }
+.category.collapsed .category-body { display: none; }
+.subject {
+    background: rgba(255,255,255,0.03); border-radius: 8px;
+    margin-bottom: 8px; overflow: hidden;
+}
+.subject-header {
+    padding: 10px 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; user-select: none;
+}
+.subject-header:hover { background: rgba(255,255,255,0.05); }
+.sub-name { font-size: 14px; font-weight: 600; flex: 1; }
+.sub-count { font-size: 12px; color: #888; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 10px; }
+.subject.collapsed .subject-body { display: none; }
+.subject.collapsed .toggle-icon { transform: rotate(-90deg); }
+.subject-body { padding: 8px 14px 14px 36px; }
+.univ-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.univ-tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 5px 12px; border-radius: 6px; font-size: 13px; color: #ddd;
+    transition: all 0.2s;
+}
+.univ-tag:hover {
+    background: rgba(243, 156, 18, 0.2);
+    border-color: #f39c12; color: #f39c12; transform: translateY(-1px);
+}
+.major-list {
+    font-size: 13px; color: #bbb; line-height: 1.8;
+    background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 6px;
+}
+.table-view { display: none; }
+.table-view.active { display: block; }
+.tree-view.active { display: block; }
+.tree-view { display: none; }
+table {
+    width: 100%; border-collapse: collapse;
+    background: rgba(255,255,255,0.04); border-radius: 12px; overflow: hidden;
+}
+th {
+    background: rgba(255,255,255,0.1); padding: 14px 16px;
+    text-align: left; font-size: 14px; color: #f39c12;
+}
+td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+tr:hover { background: rgba(255,255,255,0.04); }
+.industry-row { background: rgba(230, 126, 34, 0.05); }
+.idx { color: #888; width: 50px; }
+.univ-name { font-weight: 600; color: #f1c40f; white-space: nowrap; }
+.subj-cell { color: #bbb; line-height: 1.6; }
+.type-cell { width: 90px; }
+.type-tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+.type-tag.syl { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+.type-tag.ind { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+.search-box {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: #fff; font-size: 14px;
+    margin-bottom: 16px; outline: none;
+}
+.search-box::placeholder { color: #777; }
+.search-box:focus { border-color: #f39c12; }
+.footer { text-align: center; padding: 20px; color: #666; font-size: 12px; margin-top: 20px; }
+.legend {
+    display: flex; gap: 16px; justify-content: center;
+    margin-bottom: 20px; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #999; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+.filter-note {
+    background: rgba(230, 126, 34, 0.1); border: 1px solid rgba(230, 126, 34, 0.3);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    font-size: 13px; color: #f39c12; line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>电力·煤炭·运输·化工 四大行业相关高校及专业树状图</h1>
+        <div class="subtitle">仅保留图片中提及的17个相关专业 | 双一流高校 + 行业特色高校</div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-num">62</div>
+                <div class="stat-label">双一流(有相关专业)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">29</div>
+                <div class="stat-label">行业特色高校</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">91</div>
+                <div class="stat-label">合计高校</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">17</div>
+                <div class="stat-label">保留专业</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-note">
+        📌 已删除图片未提及的专业（如数学、物理、医学、经济学、文学等），仅保留以下17个：电气工程、动力工程及工程热物理、矿业工程、安全科学与工程、地质资源与地质工程、石油与天然气工程、交通运输工程、船舶与海洋工程、水利工程、化学、化学工程与技术、环境科学与工程、机械工程、土木工程、测绘科学与技术、计算机科学与技术、控制科学与工程。北京大学、清华大学因自主确定学科未纳入专业树。
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>电力能源</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7f8c8d"></div>煤炭矿业</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2980b9"></div>交通运输</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8e44ad"></div>化工石化</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div>机械土木</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#16a085"></div>信息控制</div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-btn active" onclick="switchView('tree', this)">🌳 树状图视图</div>
+        <div class="tab-btn" onclick="switchView('table', this)">📋 完整列表</div>
+        <div class="tab-btn" onclick="expandAll()">展开全部</div>
+        <div class="tab-btn" onclick="collapseAll()">收起全部</div>
+    </div>
+
+    <input type="text" class="search-box" placeholder="🔍 搜索高校名称或专业..." oninput="filterContent(this.value)">
+
+    <div class="tree-view active" id="treeView">
+        <div class="section-title">🎓 双一流建设高校（按专业分类）</div>
+        
+        <div class="category key-category" style="border-left-color:#e67e22">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">⚡</span>
+                <span class="cat-name">⚡ 电力能源类</span>
+                <span class="cat-stats">2个专业 · 11校次</span>
+                <span class="key-badge">重点行业</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 电气工程</span>
+                        <span class="sub-count">7所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">华中科技大学</span><span class="univ-tag">华北电力大学</span><span class="univ-tag">河北工业大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">湖南大学</span><span class="univ-tag">西安交通大学</span><span class="univ-tag">重庆大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 动力工程及工程热物理</span>
+                        <span class="sub-count">4所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">华中科技大学</span><span class="univ-tag">天津大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">西安交通大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category key-category" style="border-left-color:#7f8c8d">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">⛏️</span>
+                <span class="cat-name">⛏️ 煤炭矿业类</span>
+                <span class="cat-stats">4个专业 · 16校次</span>
+                <span class="key-badge">重点行业</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 矿业工程</span>
+                        <span class="sub-count">5所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">中南大学</span><span class="univ-tag">中国矿业大学</span><span class="univ-tag">中国矿业大学(北京)</span><span class="univ-tag">北京科技大学</span><span class="univ-tag">南京大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 安全科学与工程</span>
+                        <span class="sub-count">3所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">中国矿业大学</span><span class="univ-tag">中国矿业大学(北京)</span><span class="univ-tag">中国科学技术大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 地质资源与地质工程</span>
+                        <span class="sub-count">5所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">中国地质大学(北京)</span><span class="univ-tag">中国地质大学(武汉)</span><span class="univ-tag">中国石油大学(北京)</span><span class="univ-tag">中国石油大学(华东)</span><span class="univ-tag">成都理工大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 石油与天然气工程</span>
+                        <span class="sub-count">3所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">中国石油大学(北京)</span><span class="univ-tag">中国石油大学(华东)</span><span class="univ-tag">西南石油大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category key-category" style="border-left-color:#2980b9">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">🚄</span>
+                <span class="cat-name">🚄 交通运输类</span>
+                <span class="cat-stats">3个专业 · 10校次</span>
+                <span class="key-badge">重点行业</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 交通运输工程</span>
+                        <span class="sub-count">6所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">东南大学</span><span class="univ-tag">中南大学</span><span class="univ-tag">北京航空航天大学</span><span class="univ-tag">大连海事大学</span><span class="univ-tag">西南交通大学</span><span class="univ-tag">长安大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 船舶与海洋工程</span>
+                        <span class="sub-count">2所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">哈尔滨工程大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 水利工程</span>
+                        <span class="sub-count">2所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">武汉大学</span><span class="univ-tag">河海大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category key-category" style="border-left-color:#8e44ad">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">🧪</span>
+                <span class="cat-name">🧪 化工石化类</span>
+                <span class="cat-stats">3个专业 · 38校次</span>
+                <span class="key-badge">重点行业</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 化学</span>
+                        <span class="sub-count">22所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">东北师范大学</span><span class="univ-tag">中国科学技术大学</span><span class="univ-tag">中国科学院大学</span><span class="univ-tag">中山大学</span><span class="univ-tag">兰州大学</span><span class="univ-tag">华东理工大学</span><span class="univ-tag">华南理工大学</span><span class="univ-tag">南京大学</span><span class="univ-tag">南开大学</span><span class="univ-tag">厦门大学</span><span class="univ-tag">吉林大学</span><span class="univ-tag">四川大学</span><span class="univ-tag">复旦大学</span><span class="univ-tag">天津大学</span><span class="univ-tag">山东大学</span><span class="univ-tag">新疆大学</span><span class="univ-tag">武汉大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">湖南大学</span><span class="univ-tag">福州大学</span><span class="univ-tag">郑州大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 化学工程与技术</span>
+                        <span class="sub-count">9所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">北京化工大学</span><span class="univ-tag">华东理工大学</span><span class="univ-tag">南京大学</span><span class="univ-tag">大连理工大学</span><span class="univ-tag">天津大学</span><span class="univ-tag">太原理工大学</span><span class="univ-tag">宁夏大学</span><span class="univ-tag">石河子大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 环境科学与工程</span>
+                        <span class="sub-count">7所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">北京师范大学</span><span class="univ-tag">南京大学</span><span class="univ-tag">同济大学</span><span class="univ-tag">哈尔滨工业大学</span><span class="univ-tag">复旦大学</span><span class="univ-tag">河海大学</span><span class="univ-tag">浙江大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category " style="border-left-color:#c0392b">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">⚙️</span>
+                <span class="cat-name">⚙️ 机械土木类</span>
+                <span class="cat-stats">3个专业 · 22校次</span>
+                
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#c0392b">● 机械工程</span>
+                        <span class="sub-count">11所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">上海大学</span><span class="univ-tag">东南大学</span><span class="univ-tag">华中科技大学</span><span class="univ-tag">哈尔滨工业大学</span><span class="univ-tag">大连理工大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">湖南大学</span><span class="univ-tag">西北工业大学</span><span class="univ-tag">西安交通大学</span><span class="univ-tag">重庆大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#c0392b">● 土木工程</span>
+                        <span class="sub-count">9所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">东南大学</span><span class="univ-tag">北京工业大学</span><span class="univ-tag">同济大学</span><span class="univ-tag">哈尔滨工业大学</span><span class="univ-tag">广西大学</span><span class="univ-tag">武汉大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">重庆大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#c0392b">● 测绘科学与技术</span>
+                        <span class="sub-count">2所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">同济大学</span><span class="univ-tag">武汉大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category " style="border-left-color:#16a085">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">💻</span>
+                <span class="cat-name">💻 信息控制类</span>
+                <span class="cat-stats">2个专业 · 21校次</span>
+                
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#16a085">● 计算机科学与技术</span>
+                        <span class="sub-count">12所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">东南大学</span><span class="univ-tag">中国科学技术大学</span><span class="univ-tag">北京航空航天大学</span><span class="univ-tag">北京邮电大学</span><span class="univ-tag">华中科技大学</span><span class="univ-tag">南京大学</span><span class="univ-tag">哈尔滨工业大学</span><span class="univ-tag">国防科技大学</span><span class="univ-tag">新疆大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">西安电子科技大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#16a085">● 控制科学与工程</span>
+                        <span class="sub-count">9所</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="univ-list">
+            <span class="univ-tag">上海交通大学</span><span class="univ-tag">东北大学</span><span class="univ-tag">东南大学</span><span class="univ-tag">北京理工大学</span><span class="univ-tag">北京航空航天大学</span><span class="univ-tag">南京航空航天大学</span><span class="univ-tag">哈尔滨工业大学</span><span class="univ-tag">浙江大学</span><span class="univ-tag">西安交通大学</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="section-title">🏭 行业特色高校（煤炭/电力/化工/运输）</div>
+        
+        <div class="category industry-category" style="border-left-color:#7f8c8d">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">⛏️</span>
+                <span class="cat-name">煤炭行业特色高校（8所）</span>
+                <span class="cat-stats">8所高校</span>
+                <span class="industry-badge">行业特色</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 辽宁工程技术大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 山东科技大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 河南理工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 西安科技大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 黑龙江科技大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 华北科技学院</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 内蒙古科技大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#7f8c8d">● 安徽理工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category industry-category" style="border-left-color:#e67e22">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">⚡</span>
+                <span class="cat-name">电力行业特色高校（11所）</span>
+                <span class="cat-stats">11所高校</span>
+                <span class="industry-badge">行业特色</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 东北电力大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 上海电力大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 长沙理工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 沈阳工程学院</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 南京工程学院</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 内蒙古工业大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 三峡大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 长春工程学院</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 西安理工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 华北水利水电大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#e67e22">● 西华大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category industry-category" style="border-left-color:#8e44ad">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">🧪</span>
+                <span class="cat-name">化工行业特色高校（6所）</span>
+                <span class="cat-stats">6所高校</span>
+                <span class="industry-badge">行业特色</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 东北石油大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 西安石油大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 陕西科技大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 兰州理工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 辽宁石油化工大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#8e44ad">● 沈阳工业大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+        <div class="category industry-category" style="border-left-color:#2980b9">
+            <div class="category-header" onclick="toggleCategory(this)">
+                <span class="toggle-icon">▼</span>
+                <span class="cat-icon">🚄</span>
+                <span class="cat-name">运输行业特色高校（4所）</span>
+                <span class="cat-stats">4所高校</span>
+                <span class="industry-badge">行业特色</span>
+            </div>
+            <div class="category-body">
+        
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 华东交通大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 石家庄铁道大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 兰州交通大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+                <div class="subject">
+                    <div class="subject-header" onclick="toggleSubject(this)">
+                        <span class="toggle-icon">▼</span>
+                        <span class="sub-name" style="color:#2980b9">● 上海海事大学</span>
+                        <span class="sub-count">优势专业</span>
+                    </div>
+                    <div class="subject-body">
+                        <div class="major-list">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="table-view" id="tableView">
+        <table>
+            <thead>
+                <tr><th>序号</th><th>高校名称</th><th>类型</th><th>相关专业</th></tr>
+            </thead>
+            <tbody id="univTableBody">
+                
+        <tr>
+            <td class="idx">1</td>
+            <td class="univ-name">北京工业大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">土木工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">2</td>
+            <td class="univ-name">北京航空航天大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">控制科学与工程、计算机科学与技术、交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">3</td>
+            <td class="univ-name">北京理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">控制科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">4</td>
+            <td class="univ-name">北京科技大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">矿业工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">5</td>
+            <td class="univ-name">北京化工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">6</td>
+            <td class="univ-name">北京邮电大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">计算机科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">7</td>
+            <td class="univ-name">北京师范大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">8</td>
+            <td class="univ-name">中国矿业大学(北京)</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">9</td>
+            <td class="univ-name">中国石油大学(北京)</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">地质资源与地质工程、石油与天然气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">10</td>
+            <td class="univ-name">中国地质大学(北京)</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">地质资源与地质工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">11</td>
+            <td class="univ-name">中国科学院大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">12</td>
+            <td class="univ-name">南开大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">13</td>
+            <td class="univ-name">天津大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、动力工程及工程热物理、化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">14</td>
+            <td class="univ-name">华北电力大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">电气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">15</td>
+            <td class="univ-name">河北工业大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">电气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">16</td>
+            <td class="univ-name">太原理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">17</td>
+            <td class="univ-name">大连理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">18</td>
+            <td class="univ-name">东北大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">控制科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">19</td>
+            <td class="univ-name">大连海事大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">20</td>
+            <td class="univ-name">吉林大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">21</td>
+            <td class="univ-name">东北师范大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">22</td>
+            <td class="univ-name">哈尔滨工业大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、控制科学与工程、计算机科学与技术、土木工程、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">23</td>
+            <td class="univ-name">哈尔滨工程大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">船舶与海洋工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">24</td>
+            <td class="univ-name">复旦大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">25</td>
+            <td class="univ-name">同济大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">土木工程、测绘科学与技术、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">26</td>
+            <td class="univ-name">上海交通大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、机械工程、控制科学与工程、计算机科学与技术、土木工程、化学工程与技术、船舶与海洋工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">27</td>
+            <td class="univ-name">华东理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">28</td>
+            <td class="univ-name">上海大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">29</td>
+            <td class="univ-name">南京大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、计算机科学与技术、化学工程与技术、矿业工程、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">30</td>
+            <td class="univ-name">东南大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、控制科学与工程、计算机科学与技术、土木工程、交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">31</td>
+            <td class="univ-name">南京航空航天大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">控制科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">32</td>
+            <td class="univ-name">中国矿业大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">33</td>
+            <td class="univ-name">河海大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">水利工程、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">34</td>
+            <td class="univ-name">浙江大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、机械工程、动力工程及工程热物理、电气工程、控制科学与工程、计算机科学与技术、土木工程、环境科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">35</td>
+            <td class="univ-name">中国科学技术大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、计算机科学与技术、安全科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">36</td>
+            <td class="univ-name">厦门大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">37</td>
+            <td class="univ-name">福州大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">38</td>
+            <td class="univ-name">山东大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">39</td>
+            <td class="univ-name">中国石油大学(华东)</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">地质资源与地质工程、石油与天然气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">40</td>
+            <td class="univ-name">郑州大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">41</td>
+            <td class="univ-name">武汉大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、土木工程、水利工程、测绘科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">42</td>
+            <td class="univ-name">华中科技大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、动力工程及工程热物理、电气工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">43</td>
+            <td class="univ-name">中国地质大学(武汉)</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">地质资源与地质工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">44</td>
+            <td class="univ-name">湖南大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、机械工程、电气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">45</td>
+            <td class="univ-name">中南大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">矿业工程、交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">46</td>
+            <td class="univ-name">国防科技大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">计算机科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">47</td>
+            <td class="univ-name">中山大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">48</td>
+            <td class="univ-name">华南理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">49</td>
+            <td class="univ-name">广西大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">土木工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">50</td>
+            <td class="univ-name">四川大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">51</td>
+            <td class="univ-name">西南交通大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">52</td>
+            <td class="univ-name">西南石油大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">石油与天然气工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">53</td>
+            <td class="univ-name">成都理工大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">地质资源与地质工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">54</td>
+            <td class="univ-name">重庆大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、电气工程、土木工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">55</td>
+            <td class="univ-name">西安交通大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程、动力工程及工程热物理、电气工程、控制科学与工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">56</td>
+            <td class="univ-name">西北工业大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">机械工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">57</td>
+            <td class="univ-name">西安电子科技大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">计算机科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">58</td>
+            <td class="univ-name">长安大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">交通运输工程</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">59</td>
+            <td class="univ-name">兰州大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">60</td>
+            <td class="univ-name">宁夏大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学工程与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">61</td>
+            <td class="univ-name">新疆大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学、计算机科学与技术</td>
+        </tr>
+        
+        <tr>
+            <td class="idx">62</td>
+            <td class="univ-name">石河子大学</td>
+            <td class="type-cell"><span class="type-tag syl">双一流</span></td>
+            <td class="subj-cell">化学工程与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">63</td>
+            <td class="univ-name">辽宁工程技术大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">64</td>
+            <td class="univ-name">山东科技大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">65</td>
+            <td class="univ-name">河南理工大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">66</td>
+            <td class="univ-name">西安科技大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">67</td>
+            <td class="univ-name">黑龙江科技大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">68</td>
+            <td class="univ-name">华北科技学院</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">69</td>
+            <td class="univ-name">内蒙古科技大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">70</td>
+            <td class="univ-name">安徽理工大学</td>
+            <td class="type-cell"><span class="type-tag ind">煤炭行业特色高校</span></td>
+            <td class="subj-cell">矿业工程、安全科学与工程、电气工程、机械工程、测绘科学与技术、地质资源与地质工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">71</td>
+            <td class="univ-name">东北电力大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">72</td>
+            <td class="univ-name">上海电力大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">73</td>
+            <td class="univ-name">长沙理工大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">74</td>
+            <td class="univ-name">沈阳工程学院</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">75</td>
+            <td class="univ-name">南京工程学院</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">76</td>
+            <td class="univ-name">内蒙古工业大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">77</td>
+            <td class="univ-name">三峡大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">78</td>
+            <td class="univ-name">长春工程学院</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">79</td>
+            <td class="univ-name">西安理工大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">80</td>
+            <td class="univ-name">华北水利水电大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">81</td>
+            <td class="univ-name">西华大学</td>
+            <td class="type-cell"><span class="type-tag ind">电力行业特色高校</span></td>
+            <td class="subj-cell">电气工程、动力工程及工程热物理、控制科学与工程、机械工程、水利工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">82</td>
+            <td class="univ-name">东北石油大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">83</td>
+            <td class="univ-name">西安石油大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">84</td>
+            <td class="univ-name">陕西科技大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">85</td>
+            <td class="univ-name">兰州理工大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">86</td>
+            <td class="univ-name">辽宁石油化工大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">87</td>
+            <td class="univ-name">沈阳工业大学</td>
+            <td class="type-cell"><span class="type-tag ind">化工行业特色高校</span></td>
+            <td class="subj-cell">化学、化学工程与技术、石油与天然气工程、环境科学与工程、安全科学与工程、电气工程、动力工程及工程热物理、控制科学与工程、机械工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">88</td>
+            <td class="univ-name">华东交通大学</td>
+            <td class="type-cell"><span class="type-tag ind">运输行业特色高校</span></td>
+            <td class="subj-cell">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">89</td>
+            <td class="univ-name">石家庄铁道大学</td>
+            <td class="type-cell"><span class="type-tag ind">运输行业特色高校</span></td>
+            <td class="subj-cell">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">90</td>
+            <td class="univ-name">兰州交通大学</td>
+            <td class="type-cell"><span class="type-tag ind">运输行业特色高校</span></td>
+            <td class="subj-cell">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</td>
+        </tr>
+        
+        <tr class="industry-row">
+            <td class="idx">91</td>
+            <td class="univ-name">上海海事大学</td>
+            <td class="type-cell"><span class="type-tag ind">运输行业特色高校</span></td>
+            <td class="subj-cell">交通运输工程、船舶与海洋工程、电气工程、机械工程、土木工程、控制科学与工程、计算机科学与技术</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        双一流数据来源：教育部《第二轮"双一流"建设高校及建设学科名单》（2022年2月），仅筛选四大行业相关专业<br>
+        行业特色高校来源：用户提供的煤炭（8所）、电力（11所）、化工（6所）、运输（4所）行业强校名单
+    </div>
+</div>
+
+<script>
+function toggleCategory(el) { el.parentElement.classList.toggle('collapsed'); }
+function toggleSubject(el) { el.parentElement.classList.toggle('collapsed'); }
+function switchView(view, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('treeView').classList.toggle('active', view === 'tree');
+    document.getElementById('tableView').classList.toggle('active', view === 'table');
+}
+function expandAll() { document.querySelectorAll('.category, .subject').forEach(el => el.classList.remove('collapsed')); }
+function collapseAll() { document.querySelectorAll('.category, .subject').forEach(el => el.classList.add('collapsed')); }
+function filterContent(keyword) {
+    keyword = keyword.trim().toLowerCase();
+    if (!keyword) {
+        document.querySelectorAll('.category, .subject').forEach(el => { el.style.display = ''; el.classList.remove('collapsed'); });
+        document.querySelectorAll('.univ-tag').forEach(el => el.style.display = '');
+        document.querySelectorAll('#univTableBody tr').forEach(el => el.style.display = '');
+        return;
+    }
+    document.querySelectorAll('.category').forEach(cat => {
+        let catMatch = cat.querySelector('.cat-name').textContent.toLowerCase().includes(keyword);
+        let anySubMatch = false;
+        cat.querySelectorAll('.subject').forEach(sub => {
+            let subMatch = sub.querySelector('.sub-name').textContent.toLowerCase().includes(keyword);
+            let anyUnivMatch = false;
+            sub.querySelectorAll('.univ-tag, .major-list').forEach(tag => {
+                let match = tag.textContent.toLowerCase().includes(keyword);
+                if (tag.classList.contains('univ-tag')) tag.style.display = match ? '' : 'none';
+                if (match) anyUnivMatch = true;
+            });
+            if (subMatch || anyUnivMatch) { sub.style.display = ''; sub.classList.remove('collapsed'); anySubMatch = true; }
+            else { sub.style.display = 'none'; }
+        });
+        if (catMatch || anySubMatch) { cat.style.display = ''; cat.classList.remove('collapsed'); }
+        else { cat.style.display = 'none'; }
+    });
+    document.querySelectorAll('#univTableBody tr').forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(keyword) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
